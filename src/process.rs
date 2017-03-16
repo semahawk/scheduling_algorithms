@@ -16,16 +16,6 @@ pub struct Process {
 }
 
 impl Process {
-  pub fn with_burst_time(&mut self, burst_time: usize) -> Process {
-    Process {
-      id: self.id,
-      name: self.name.clone(),
-      arrival_time: self.arrival_time,
-      burst_time: burst_time,
-      execution_time: self.execution_time,
-    }
-  }
-
   pub fn done_executing(&self) -> bool {
     self.execution_time >= self.burst_time
   }
