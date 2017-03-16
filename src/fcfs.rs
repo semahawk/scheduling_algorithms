@@ -7,9 +7,14 @@
 //
 
 use std::collections::VecDeque;
+use cursive::Cursive;
+use cursive::view::*;
+use cursive::views::*;
+use cursive::traits::*;
 
 use process::*;
 use scheduler::*;
+use tui;
 
 #[derive(Debug)]
 pub struct FCFS {
@@ -32,15 +37,7 @@ impl Scheduler for FCFS {
   }
 
   fn schedule(&mut self) {
-    print!("processes to pick from: ");
-    for p in self.process_list.iter() {
-      print!("{}, ", p.name);
-    }
-    println!();
-    //match self.process_list.front() {
-      //Some(p) => println!("fcfs: first process in queue: {}", p.name),
-      //None => println!("fcfs: no processes in queue"),
-    //}
+    // we're always taking the first one in the queue
   }
 
   fn current_proc(&self) -> Option<&Process> {
@@ -53,6 +50,10 @@ impl Scheduler for FCFS {
 
   fn kill_current_proc(&mut self) {
     self.process_list.pop_front();
+  }
+
+  fn list_processes(&self, mut tui: &mut Cursive) {
+    tui::draw_process_list(&mut tui, self.process_list.as_slices().0);
   }
 }
 

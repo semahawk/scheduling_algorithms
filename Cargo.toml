@@ -5,3 +5,4 @@ authors = ["Szymon Urbaś <szymon.urbas@aol.com>"]
 
 [dependencies]
 rand = "0.3.15"
+cursive = { git = "https://github.com/gyscos/Cursive", features = [ "ncurses-backend" ] }
