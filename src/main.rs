@@ -51,18 +51,6 @@ where S: Scheduler {
   scheduler.add_process(process_spawner.spawn(process_list.pop().unwrap()));
 
   loop {
-    // Simulate other processes creating new processes
-    // Assume that you can't create new processes, if there's none already
-    if scheduler.has_processes() {
-      if clock_tick % SYSTEM_HZ == 0 {
-        if let Some(burst_time) = process_list.pop() {
-          let new_proc = process_spawner.spawn(burst_time);
-          tui.debug(format!("Spawning {}", new_proc.name));
-          scheduler.add_process(new_proc);
-        }
-      }
-    }
-
     if scheduler.has_processes() {
       if scheduler.current_proc().unwrap().done_executing() {
         tui.debug(format!("Killing process {}", scheduler.current_proc().unwrap().name));
@@ -87,6 +75,16 @@ where S: Scheduler {
 
     // simulate executing the current process
     scheduler.current_proc_mut().unwrap().record_execution();
+
+    // Simulate other processes creating new processes
+    // Assume that you can't create new processes, if there's none already
+    if clock_tick % SYSTEM_HZ == 0 {
+      if let Some(burst_time) = process_list.pop() {
+        let new_proc = process_spawner.spawn(burst_time);
+        tui.debug(format!("Spawning {}", new_proc.name));
+        scheduler.add_process(new_proc);
+      }
+    }
 
     // update the process view
     scheduler.list_processes(&mut tui);
