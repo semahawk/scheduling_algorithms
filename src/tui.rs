@@ -22,6 +22,7 @@ pub fn new() -> Tui {
   let process_list = ListView::new().with_id("process_list");
   let info_bar = TextView::new("").with_id("info_bar");
   let header = TextView::new("").with_id("header");
+  let debug = ListView::new().with_id("debug").full_height();
 
   let mut layout = LinearLayout::horizontal();
 
@@ -30,6 +31,7 @@ pub fn new() -> Tui {
     LinearLayout::vertical()
       .child(Dialog::around(header).title("Header"))
       .child(Dialog::around(info_bar).title("Info bar"))
+      .child(Dialog::around(debug).title("Debug info"))
   );
 
   renderer.set_fps(60);
@@ -63,6 +65,12 @@ impl Tui {
     let mut header = self.renderer.find_id::<TextView>("header").unwrap();
 
     header.set_content(text.clone());
+  }
+
+  pub fn debug(&mut self, text: String) {
+    let mut debug = self.renderer.find_id::<ListView>("debug").unwrap();
+
+    debug.add_child("", TextView::new(text.clone()));
   }
 }
 

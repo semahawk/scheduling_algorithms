@@ -41,6 +41,7 @@ where S: Scheduler {
   let mut process_spawner = process::new_spawner();
 
   tui.set_header(format!("Using algorithm: {}", scheduler.name()));
+  tui.debug(format!("Starting simulation using {}", scheduler.name()));
 
   // vectors only support the pop (from the back) operation so
   // reverse it (so we pop from the front)
@@ -55,13 +56,16 @@ where S: Scheduler {
     if scheduler.has_processes() {
       if clock_tick % SYSTEM_HZ == 0 {
         if let Some(burst_time) = process_list.pop() {
-          scheduler.add_process(process_spawner.spawn(burst_time));
+          let new_proc = process_spawner.spawn(burst_time);
+          tui.debug(format!("Spawning {}", new_proc.name));
+          scheduler.add_process(new_proc);
         }
       }
     }
 
     if scheduler.has_processes() {
       if scheduler.current_proc().unwrap().done_executing() {
+        tui.debug(format!("Killing process {}", scheduler.current_proc().unwrap().name));
         scheduler.kill_current_proc();
       }
     }
@@ -77,6 +81,7 @@ where S: Scheduler {
     }
 
     if clock_tick % SYSTEM_HZ == 0 {
+      tui.debug(format!("Triggering a scheduling round"));
       scheduler.schedule();
     }
 
