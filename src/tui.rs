@@ -20,7 +20,7 @@ pub fn new() -> Tui {
   let mut renderer = Cursive::new();
 
   let process_list = ListView::new().with_id("process_list");
-  let info_bar = TextView::new("").with_id("info_bar");
+  let results = TextView::new("").with_id("results").full_height();
   let header = TextView::new("").with_id("header");
   let debug = ListView::new().with_id("debug").full_height();
 
@@ -30,7 +30,7 @@ pub fn new() -> Tui {
   layout.add_child(
     LinearLayout::vertical()
       .child(Dialog::around(header).title("Header"))
-      .child(Dialog::around(info_bar).title("Info bar"))
+      .child(Dialog::around(results).title("Results"))
       .child(Dialog::around(debug).title("Debug info"))
   );
 
