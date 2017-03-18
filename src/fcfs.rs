@@ -24,6 +24,10 @@ pub fn new() -> FCFS {
 }
 
 impl Scheduler for FCFS {
+  fn name(&self) -> String {
+    format!("FCFS")
+  }
+
   fn has_processes(&self) -> bool {
     self.process_list.is_empty() == false
   }

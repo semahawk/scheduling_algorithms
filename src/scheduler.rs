@@ -10,6 +10,7 @@ use process::*;
 use tui::*;
 
 pub trait Scheduler {
+  fn name(&self) -> String;
   fn schedule(&mut self);
   fn has_processes(&self) -> bool;
   fn add_process(&mut self, Process);
