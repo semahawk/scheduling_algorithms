@@ -6,9 +6,8 @@
 // Created on: 13 Mar 2017 21:03:41 +0100 (CET)
 //
 
-use cursive::Cursive;
-
 use process::*;
+use tui::*;
 
 pub trait Scheduler {
   fn schedule(&mut self);
@@ -17,7 +16,7 @@ pub trait Scheduler {
   fn current_proc(&self) -> Option<&Process>;
   fn current_proc_mut(&mut self) -> Option<&mut Process>;
   fn kill_current_proc(&mut self);
-  fn list_processes(&self, &mut Cursive);
+  fn list_processes(&self, &mut Tui);
 }
 
 /*

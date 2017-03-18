@@ -7,14 +7,10 @@
 //
 
 use std::collections::VecDeque;
-use cursive::Cursive;
-use cursive::view::*;
-use cursive::views::*;
-use cursive::traits::*;
 
 use process::*;
 use scheduler::*;
-use tui;
+use tui::*;
 
 #[derive(Debug)]
 pub struct FCFS {
@@ -52,8 +48,8 @@ impl Scheduler for FCFS {
     self.process_list.pop_front();
   }
 
-  fn list_processes(&self, mut tui: &mut Cursive) {
-    tui::draw_process_list(&mut tui, self.process_list.as_slices().0);
+  fn list_processes(&self, mut tui: &mut Tui) {
+    tui.draw_process_list(self.process_list.as_slices().0);
   }
 }
 

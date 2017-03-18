@@ -12,17 +12,13 @@ extern crate cursive;
 use std::thread;
 use std::time;
 
-use cursive::Cursive;
-use cursive::view::*;
-use cursive::views::*;
-use cursive::traits::*;
-
 mod process;
 mod scheduler;
 mod fcfs;
 mod tui;
 
 use scheduler::*;
+use tui::*;
 
 /// Length of a single system clock tick (frequency of actual, real time)
 const CLOCK_HZ: u64 = 50;
@@ -30,21 +26,7 @@ const CLOCK_HZ: u64 = 50;
 const SYSTEM_HZ: usize = 8;
 
 fn main() {
-  let mut tui = Cursive::new();
-
-  let process_list = ListView::new().with_id("process_list");
-  let mut info_bar = LinearLayout::vertical().with_id("info_bar");
-
-  info_bar.get_view_mut().add_child(TextView::new("info"));
-
-  let mut layout = LinearLayout::horizontal();
-
-  layout.add_child(Dialog::around(process_list).title("Process list"));
-  layout.add_child(Dialog::around(info_bar).title("Info bar"));
-
-  tui.set_fps(CLOCK_HZ as u32);
-  tui.add_layer(layout);
-  tui.add_global_callback('q', |tui| tui.quit());
+  let mut tui = tui::new();
 
   run_simulation(&mut tui, fcfs::new(), vec![8, 8, 8, 8, 8, 8, 8, 64]);
   run_simulation(&mut tui, fcfs::new(), vec![64, 8, 8, 8, 8, 8, 8, 8]);
@@ -53,7 +35,7 @@ fn main() {
   loop {}
 }
 
-fn run_simulation<S>(mut tui: &mut Cursive, mut scheduler: S, mut process_list: Vec<usize>)
+fn run_simulation<S>(mut tui: &mut Tui, mut scheduler: S, mut process_list: Vec<usize>)
 where S: Scheduler {
   let mut clock_tick = 0;
   let mut process_spawner = process::new_spawner();
@@ -83,7 +65,7 @@ where S: Scheduler {
     }
 
     // update all the views
-    tui.step();
+    tui.update();
 
     if !scheduler.has_processes() {
       // if there's no more processes - end the simulation

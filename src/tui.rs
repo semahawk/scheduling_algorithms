@@ -9,20 +9,48 @@
 use cursive::Cursive;
 use cursive::view::*;
 use cursive::views::*;
-use cursive::traits::*;
 
 use process::*;
 
-pub fn draw_process_list(mut tui: &mut Cursive, process_list: &[Process]) {
-  let mut process_list_view = tui.find_id::<ListView>("process_list").unwrap();
+pub struct Tui {
+  renderer: Cursive,
+}
 
-  process_list_view.clear();
+pub fn new() -> Tui {
+  let mut renderer = Cursive::new();
+  let process_list = ListView::new().with_id("process_list");
+  let info_bar = LinearLayout::vertical().with_id("info_bar");
 
-  for p in process_list.iter() {
-    let progress_bar_value = ((p.execution_time as f64 / p.burst_time as f64) as f64 * 100f64) as usize;
+  let mut layout = LinearLayout::horizontal();
 
-    process_list_view.add_child(p.name.clone().as_str(),
-      ProgressBar::new().with_value(Counter::new(progress_bar_value)));
+  layout.add_child(Dialog::around(process_list).title("Process list"));
+  layout.add_child(Dialog::around(info_bar).title("Info bar"));
+
+  renderer.set_fps(60);
+  renderer.add_layer(layout);
+  renderer.add_global_callback('q', |tui| tui.quit());
+
+  Tui {
+    renderer: renderer,
+  }
+}
+
+impl Tui {
+  pub fn update(&mut self) {
+    self.renderer.step();
+  }
+
+  pub fn draw_process_list(&mut self, process_list: &[Process]) {
+    let mut process_list_view = self.renderer.find_id::<ListView>("process_list").unwrap();
+
+    process_list_view.clear();
+
+    for p in process_list.iter() {
+      let progress_bar_value = ((p.execution_time as f64 / p.burst_time as f64) as f64 * 100f64) as usize;
+
+      process_list_view.add_child(p.name.clone().as_str(),
+        ProgressBar::new().with_value(Counter::new(progress_bar_value)));
+    }
   }
 }
 
