@@ -40,6 +40,8 @@ where S: Scheduler {
   let mut clock_tick = 0;
   let mut process_spawner = process::new_spawner();
 
+  tui.set_header(format!("Using algorithm: {}", "TODO"));
+
   // vectors only support the pop (from the back) operation so
   // reverse it (so we pop from the front)
   process_list.reverse();

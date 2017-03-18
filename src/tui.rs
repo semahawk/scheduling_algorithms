@@ -18,13 +18,19 @@ pub struct Tui {
 
 pub fn new() -> Tui {
   let mut renderer = Cursive::new();
+
   let process_list = ListView::new().with_id("process_list");
-  let info_bar = LinearLayout::vertical().with_id("info_bar");
+  let info_bar = TextView::new("").with_id("info_bar");
+  let header = TextView::new("").with_id("header");
 
   let mut layout = LinearLayout::horizontal();
 
   layout.add_child(Dialog::around(process_list).title("Process list"));
-  layout.add_child(Dialog::around(info_bar).title("Info bar"));
+  layout.add_child(
+    LinearLayout::vertical()
+      .child(Dialog::around(header).title("Header"))
+      .child(Dialog::around(info_bar).title("Info bar"))
+  );
 
   renderer.set_fps(60);
   renderer.add_layer(layout);
@@ -51,6 +57,12 @@ impl Tui {
       process_list_view.add_child(p.name.clone().as_str(),
         ProgressBar::new().with_value(Counter::new(progress_bar_value)));
     }
+  }
+
+  pub fn set_header(&mut self, text: String) {
+    let mut header = self.renderer.find_id::<TextView>("header").unwrap();
+
+    header.set_content(text.clone());
   }
 }
 
