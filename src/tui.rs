@@ -13,10 +13,6 @@ use cursive::traits::*;
 
 use process::*;
 
-fn label_maker(value: usize, (min, max): (usize, usize)) -> String {
-  format!("")
-}
-
 pub fn draw_process_list(mut tui: &mut Cursive, process_list: &[Process]) {
   let mut process_list_view = tui.find_id::<ListView>("process_list").unwrap();
 
