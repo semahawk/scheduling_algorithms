@@ -76,6 +76,9 @@ where S: Scheduler {
     // simulate executing the current process
     scheduler.current_proc_mut().unwrap().record_execution();
 
+    // increase the waiting time for every process
+    scheduler.increase_waiting_times();
+
     // Simulate other processes creating new processes
     // Assume that you can't create new processes, if there's none already
     if clock_tick % SYSTEM_HZ == 0 {

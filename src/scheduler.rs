@@ -18,6 +18,7 @@ pub trait Scheduler {
   fn current_proc_mut(&mut self) -> Option<&mut Process>;
   fn kill_current_proc(&mut self);
   fn list_processes(&self, &mut Tui);
+  fn increase_waiting_times(&mut self);
 }
 
 /*

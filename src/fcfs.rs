@@ -55,6 +55,12 @@ impl Scheduler for FCFS {
   fn list_processes(&self, mut tui: &mut Tui) {
     tui.draw_process_list(self.process_list.as_slices().0);
   }
+
+  fn increase_waiting_times(&mut self) {
+    for process in self.process_list.iter_mut() {
+      process.increase_waiting_time();
+    }
+  }
 }
 
 /*

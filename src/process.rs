@@ -10,7 +10,7 @@
 pub struct Process {
   pub id: usize,
   pub name: String,
-  pub arrival_time: usize,
+  pub waiting_time: usize,
   pub burst_time: usize,
   pub execution_time: usize,
 }
@@ -22,6 +22,14 @@ impl Process {
 
   pub fn record_execution(&mut self) {
     self.execution_time += 1;
+  }
+
+  pub fn increase_waiting_time(&mut self) {
+    // update waiting time only for processes which
+    // weren't given any CPU time yet
+    if self.execution_time == 0 {
+      self.waiting_time += 1;
+    }
   }
 }
 
@@ -42,7 +50,7 @@ impl ProcessSpawner {
     Process {
       id: self.current_id - 1,
       name: format!("proc_{:?}", self.current_id - 1),
-      arrival_time: 0,
+      waiting_time: 0,
       execution_time: 0,
       burst_time: burst_time,
     }
