@@ -28,9 +28,18 @@ const SYSTEM_HZ: usize = 8;
 fn main() {
   let mut tui = tui::new();
 
-  run_simulation(&mut tui, fcfs::new(), vec![8, 8, 8, 8, 8, 8, 8, 64]);
-  run_simulation(&mut tui, fcfs::new(), vec![64, 8, 8, 8, 8, 8, 8, 8]);
-  run_simulation(&mut tui, fcfs::new(), vec![8, 8, 8, 32, 32, 6, 8, 8]);
+  let scenarios = {
+    (0..32).map(|_| (0..3).map(|_| SYSTEM_HZ).collect::<Vec<usize>>()).collect::<Vec<Vec<usize>>>()
+  };
+
+  tui.add_result(format!("Testing the FCFS scheduler"));
+  for (run, scenario) in scenarios.iter().enumerate() {
+    let scheduler = fcfs::new();
+    let avg = run_simulation(&mut tui, scheduler, scenario.clone());
+    tui.add_result(format!("#{:02}: Average waiting time: {:02.2}", run, avg));
+  }
+
+  tui.update();
 
   loop {}
 }

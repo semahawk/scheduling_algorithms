@@ -20,7 +20,7 @@ pub fn new() -> Tui {
   let mut renderer = Cursive::new();
 
   let process_list = ListView::new().with_id("process_list").min_width(32);
-  let results = TextView::new("").with_id("results").full_height();
+  let results = TextView::new("").scroll_strategy(ScrollStrategy::StickToBottom).with_id("results").full_height();
   let header = TextView::new("").with_id("header");
   let debug = TextView::new("").scroll_strategy(ScrollStrategy::StickToBottom).with_id("debug").full_height();
 
@@ -69,6 +69,13 @@ impl Tui {
 
   pub fn debug(&mut self, text: String) {
     let mut debug = self.renderer.find_id::<TextView>("debug").unwrap();
+
+    debug.append_content(&text);
+    debug.append_content("\n");
+  }
+
+  pub fn add_result(&mut self, text: String) {
+    let mut debug = self.renderer.find_id::<TextView>("results").unwrap();
 
     debug.append_content(&text);
     debug.append_content("\n");
