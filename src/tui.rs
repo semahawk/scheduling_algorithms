@@ -24,23 +24,25 @@ pub fn new() -> Tui {
     .with_id("results").full_height().min_width(48);
   let header = TextView::new("").with_id("header");
   let debug = TextView::new("").scroll_strategy(ScrollStrategy::StickToBottom).with_id("debug").full_height();
-
-  let mut layout = LinearLayout::horizontal();
-  let mut right_pane =
-    LinearLayout::vertical()
-      .child(Dialog::around(header).title("Header"))
-      .child(Dialog::around(results).title("Results"))
-  ;
-
-  if cfg!(feature = "debug-info"){
-    right_pane.add_child(Dialog::around(debug).title("Debug info"));
-  }
-
-  layout.add_child(Dialog::around(process_list).title("Process list"));
-  layout.add_child(right_pane);
+  let scenarios = ListView::new().with_id("scenarios").max_height(4);
 
   renderer.set_fps(60);
-  renderer.add_layer(layout);
+
+  if cfg!(feature = "debug-info") {
+    renderer.add_layer(debug);
+  }
+
+  renderer.add_layer(
+    LinearLayout::vertical().child(
+        LinearLayout::horizontal()
+          .child(Dialog::around(process_list).title("Process list"))
+          .child(
+            LinearLayout::vertical()
+              .child(Dialog::around(header).title("Header"))
+              .child(Dialog::around(results).title("Results"))
+          )
+      ).child(Dialog::around(scenarios).title("Scenarios")));
+
   renderer.add_global_callback('q', |tui| tui.quit());
 
   Tui {
