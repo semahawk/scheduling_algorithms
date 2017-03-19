@@ -51,13 +51,6 @@ where S: Scheduler {
   scheduler.add_process(process_spawner.spawn(process_list.pop().unwrap()));
 
   loop {
-    if scheduler.has_processes() {
-      if scheduler.current_proc().unwrap().done_executing() {
-        tui.debug(format!("{:05}: Killing process {}", clock_tick, scheduler.current_proc().unwrap().name));
-        scheduler.kill_current_proc();
-      }
-    }
-
     // update all the views
     tui.update();
 
@@ -70,6 +63,11 @@ where S: Scheduler {
 
     // simulate executing the current process
     scheduler.current_proc_mut().unwrap().record_execution();
+
+    if scheduler.current_proc().unwrap().done_executing() {
+      tui.debug(format!("{:05}: Killing process {}", clock_tick, scheduler.current_proc().unwrap().name));
+      scheduler.kill_current_proc();
+    }
 
     if clock_tick % SYSTEM_HZ == SYSTEM_HZ - 1 {
       tui.debug(format!("{:05}: Triggering a scheduling round", clock_tick));
