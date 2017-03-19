@@ -65,6 +65,7 @@ where S: Scheduler {
     }
 
     // simulate executing the current process
+    tui.debug(format!("{:05}: Executing {}", clock_tick, scheduler.current_proc().unwrap().name));
     scheduler.current_proc_mut().unwrap().record_execution();
 
     // Simulate other processes creating new processes
