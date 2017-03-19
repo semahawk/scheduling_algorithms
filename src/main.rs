@@ -34,14 +34,20 @@ fn main() {
   };
 
   macro_rules! run_simulation {
-    ($scheduler:ident) => (
+    ($scheduler:ident) => ({
+      let mut average_waiting_time = 0f64;
+
       for (run, scenario) in scenarios.iter().enumerate() {
         let scheduler = $scheduler::new();
-        let name = scheduler.name().clone();
         let avg = run_simulation(&mut tui, scheduler, scenario.clone());
-        tui.add_result(format!("{}: #{:02}: Average waiting time: {:02.2}", name, run, avg));
+        tui.add_result(format!("{}: #{:02}: Average waiting time: {:02.2}", stringify!($scheduler), run, avg));
+
+        average_waiting_time -= average_waiting_time / (run + 1) as f64;
+        average_waiting_time += avg / (run + 1) as f64;
       }
-    )
+
+      tui.add_result(format!("{}: Overall average: {:02.2}", stringify!($scheduler), average_waiting_time));
+    })
   }
 
   run_simulation!(fcfs);
