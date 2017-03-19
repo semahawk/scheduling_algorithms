@@ -51,7 +51,6 @@ where S: Scheduler {
   scheduler.add_process(process_spawner.spawn(process_list.pop().unwrap()));
 
   loop {
-
     // update the process view
     scheduler.list_processes(&mut tui);
     // update all the views
