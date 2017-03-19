@@ -25,14 +25,18 @@ pub fn new() -> Tui {
   let debug = TextView::new("").scroll_strategy(ScrollStrategy::StickToBottom).with_id("debug").full_height();
 
   let mut layout = LinearLayout::horizontal();
-
-  layout.add_child(Dialog::around(process_list).title("Process list"));
-  layout.add_child(
+  let mut right_pane =
     LinearLayout::vertical()
       .child(Dialog::around(header).title("Header"))
       .child(Dialog::around(results).title("Results"))
-      .child(Dialog::around(debug).title("Debug info"))
-  );
+  ;
+
+  if cfg!(feature = "debug-info"){
+    right_pane.add_child(Dialog::around(debug).title("Debug info"));
+  }
+
+  layout.add_child(Dialog::around(process_list).title("Process list"));
+  layout.add_child(right_pane);
 
   renderer.set_fps(60);
   renderer.add_layer(layout);
@@ -68,10 +72,12 @@ impl Tui {
   }
 
   pub fn debug(&mut self, text: String) {
-    let mut debug = self.renderer.find_id::<TextView>("debug").unwrap();
+    if cfg!(feature = "debug-info") {
+      let mut debug = self.renderer.find_id::<TextView>("debug").unwrap();
 
-    debug.append_content(&text);
-    debug.append_content("\n");
+      debug.append_content(&text);
+      debug.append_content("\n");
+    }
   }
 
   pub fn add_result(&mut self, text: String) {
