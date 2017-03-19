@@ -71,6 +71,8 @@ where S: Scheduler {
     if clock_tick % SYSTEM_HZ == 0 {
       tui.debug(format!("Triggering a scheduling round"));
       scheduler.schedule();
+
+      tui.debug(format!("Current process was waiting {} ticks for CPU time", scheduler.current_proc().unwrap().waiting_time));
     }
 
     // simulate executing the current process

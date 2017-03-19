@@ -22,7 +22,7 @@ pub fn new() -> Tui {
   let process_list = ListView::new().with_id("process_list");
   let results = TextView::new("").with_id("results").full_height();
   let header = TextView::new("").with_id("header");
-  let debug = ListView::new().with_id("debug").full_height();
+  let debug = TextView::new("").scroll_strategy(ScrollStrategy::StickToBottom).with_id("debug").full_height();
 
   let mut layout = LinearLayout::horizontal();
 
@@ -68,9 +68,10 @@ impl Tui {
   }
 
   pub fn debug(&mut self, text: String) {
-    let mut debug = self.renderer.find_id::<ListView>("debug").unwrap();
+    let mut debug = self.renderer.find_id::<TextView>("debug").unwrap();
 
-    debug.add_child("", TextView::new(text.clone()));
+    debug.append_content(&text);
+    debug.append_content("\n");
   }
 }
 
