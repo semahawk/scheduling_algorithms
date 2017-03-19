@@ -68,13 +68,13 @@ where S: Scheduler {
       break;
     }
 
+    // simulate executing the current process
+    scheduler.current_proc_mut().unwrap().record_execution();
+
     if clock_tick % SYSTEM_HZ == SYSTEM_HZ - 1 {
       tui.debug(format!("{:05}: Triggering a scheduling round", clock_tick));
       scheduler.schedule();
     }
-
-    // simulate executing the current process
-    scheduler.current_proc_mut().unwrap().record_execution();
 
     // increase the waiting time for every process
     scheduler.increase_waiting_times();
