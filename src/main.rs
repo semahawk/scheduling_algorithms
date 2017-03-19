@@ -51,6 +51,9 @@ where S: Scheduler {
   scheduler.add_process(process_spawner.spawn(process_list.pop().unwrap()));
 
   loop {
+
+    // update the process view
+    scheduler.list_processes(&mut tui);
     // update all the views
     tui.update();
 
@@ -64,19 +67,6 @@ where S: Scheduler {
     // simulate executing the current process
     scheduler.current_proc_mut().unwrap().record_execution();
 
-    if scheduler.current_proc().unwrap().done_executing() {
-      tui.debug(format!("{:05}: Killing process {}", clock_tick, scheduler.current_proc().unwrap().name));
-      scheduler.kill_current_proc();
-    }
-
-    if clock_tick % SYSTEM_HZ == SYSTEM_HZ - 1 {
-      tui.debug(format!("{:05}: Triggering a scheduling round", clock_tick));
-      scheduler.schedule();
-    }
-
-    // increase the waiting time for every process
-    scheduler.increase_waiting_times();
-
     // Simulate other processes creating new processes
     // Assume that you can't create new processes, if there's none already
     if clock_tick % SYSTEM_HZ == 0 {
@@ -87,8 +77,21 @@ where S: Scheduler {
       }
     }
 
-    // update the process view
-    scheduler.list_processes(&mut tui);
+    if scheduler.current_proc().unwrap().done_executing() {
+      tui.debug(format!("{:05}: Killing process {}", clock_tick, scheduler.current_proc().unwrap().name));
+      scheduler.kill_current_proc();
+    }
+
+    if scheduler.has_processes() {
+      if clock_tick % SYSTEM_HZ == SYSTEM_HZ - 1 {
+        tui.debug(format!("{:05}: Triggering a scheduling round", clock_tick));
+        scheduler.schedule();
+        tui.debug(format!("{:05}: {} was waiting {} clock ticks", clock_tick, scheduler.current_proc().unwrap().name, scheduler.current_proc().unwrap().waiting_time));
+      }
+
+      // increase the waiting time for every process
+      scheduler.increase_waiting_times();
+    }
 
     thread::sleep(time::Duration::from_millis(1000 / CLOCK_HZ));
 
