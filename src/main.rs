@@ -35,10 +35,12 @@ fn main() {
   loop {}
 }
 
-fn run_simulation<S>(mut tui: &mut Tui, mut scheduler: S, mut process_list: Vec<usize>)
+fn run_simulation<S>(mut tui: &mut Tui, mut scheduler: S, mut process_list: Vec<usize>) -> f64
 where S: Scheduler {
   let mut clock_tick = 0;
   let mut process_spawner = process::new_spawner();
+  let mut average_waiting_time = 0f64;
+  let mut num_of_spawned_procs = 1;
 
   tui.set_header(format!("Using algorithm: {}", scheduler.name()));
   tui.debug(format!("{:05}: Starting simulation using {}", clock_tick, scheduler.name()));
@@ -74,6 +76,7 @@ where S: Scheduler {
         let new_proc = process_spawner.spawn(burst_time);
         tui.debug(format!("{:05}: Spawning {}", clock_tick, new_proc.name));
         scheduler.add_process(new_proc);
+        num_of_spawned_procs += 1;
       }
     }
 
@@ -87,6 +90,8 @@ where S: Scheduler {
         tui.debug(format!("{:05}: Triggering a scheduling round", clock_tick));
         scheduler.schedule();
         tui.debug(format!("{:05}: {} was waiting {} clock ticks", clock_tick, scheduler.current_proc().unwrap().name, scheduler.current_proc().unwrap().waiting_time));
+        average_waiting_time -= average_waiting_time / num_of_spawned_procs as f64;
+        average_waiting_time += scheduler.current_proc().unwrap().waiting_time as f64 / num_of_spawned_procs as f64;
       }
 
       // increase the waiting time for every process
@@ -97,6 +102,8 @@ where S: Scheduler {
 
     clock_tick += 1;
   }
+
+  average_waiting_time
 }
 
 /*
