@@ -19,7 +19,7 @@ pub struct Tui {
 pub fn new() -> Tui {
   let mut renderer = Cursive::new();
 
-  let process_list = ListView::new().with_id("process_list").min_width(32);
+  let process_list = ListView::new().with_id("process_list").full_width();
   let results = TextView::new("").scroll_strategy(ScrollStrategy::StickToBottom)
     .with_id("results").full_height().min_width(48);
   let header = TextView::new("").with_id("header");
@@ -35,12 +35,12 @@ pub fn new() -> Tui {
   renderer.add_layer(
     LinearLayout::vertical().child(
         LinearLayout::horizontal()
-          .child(Dialog::around(process_list).title("Process list"))
           .child(
             LinearLayout::vertical()
               .child(Dialog::around(header).title("Header"))
               .child(Dialog::around(results).title("Results"))
           )
+          .child(Dialog::around(process_list).title("Process list"))
       ).child(Dialog::around(scenarios).title("Scenarios")));
 
   renderer.add_global_callback('q', |tui| tui.quit());
@@ -88,6 +88,12 @@ impl Tui {
 
     debug.append_content(&text);
     debug.append_content("\n");
+  }
+
+  pub fn add_scenario(&mut self, prefix: String, scenario: &Vec<usize>) {
+    let mut scenarios = self.renderer.find_id::<ListView>("scenarios").unwrap();
+
+    scenarios.add_child(&prefix, TextView::new(format!("{:?}", scenario)));
   }
 }
 

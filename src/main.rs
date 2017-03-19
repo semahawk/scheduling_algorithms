@@ -41,6 +41,10 @@ fn main() {
     }).collect::<Vec<usize>>()).collect::<Vec<Vec<usize>>>()
   };
 
+  for (idx, ref scenario) in scenarios.iter().enumerate() {
+    tui.add_scenario(format!("{}", idx), scenario);
+  }
+
   macro_rules! run_simulation_suite {
     ($scheduler:ident) => ({
       let mut average_waiting_time = 0f64;
