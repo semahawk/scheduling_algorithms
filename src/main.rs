@@ -30,7 +30,7 @@ fn main() {
   let mut tui = tui::new();
 
   let scenarios = {
-    (0..2).map(|_| (0..10).map(|_| 16).collect::<Vec<usize>>()).collect::<Vec<Vec<usize>>>()
+    (0..2).map(|_| (0..10).map(|_| rand::random::<usize>() % (SYSTEM_HZ * 4) + 1).collect::<Vec<usize>>()).collect::<Vec<Vec<usize>>>()
   };
 
   macro_rules! run_simulation_suite {
