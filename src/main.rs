@@ -33,7 +33,12 @@ fn main() {
   let mut tui = tui::new();
 
   let scenarios = {
-    (0..20).map(|_| (0..64).map(|_| rand::random::<usize>() % (SYSTEM_HZ * 4) + 1).collect::<Vec<usize>>()).collect::<Vec<Vec<usize>>>()
+    (0..20).map(|_| (0..64).map(|_| {
+      let upper_limit = rand::random::<usize>() % (SYSTEM_HZ * 4) + 1;
+      let burst_time = rand::random::<usize>() % upper_limit;
+
+      burst_time + 1 // + 1 so there's no chance of having a process with 0 burst time
+    }).collect::<Vec<usize>>()).collect::<Vec<Vec<usize>>>()
   };
 
   macro_rules! run_simulation_suite {
