@@ -68,7 +68,7 @@ where S: Scheduler {
       break;
     }
 
-    if clock_tick % SYSTEM_HZ == 0 {
+    if clock_tick % SYSTEM_HZ == SYSTEM_HZ - 1 {
       tui.debug(format!("{:05}: Triggering a scheduling round", clock_tick));
       scheduler.schedule();
     }
