@@ -15,6 +15,7 @@ use std::time;
 mod process;
 mod scheduler;
 mod fcfs;
+mod round_robin;
 mod tui;
 
 use scheduler::*;
@@ -29,7 +30,7 @@ fn main() {
   let mut tui = tui::new();
 
   let scenarios = {
-    (0..32).map(|_| (0..3).map(|_| SYSTEM_HZ).collect::<Vec<usize>>()).collect::<Vec<Vec<usize>>>()
+    (0..2).map(|_| (0..10).map(|_| 16).collect::<Vec<usize>>()).collect::<Vec<Vec<usize>>>()
   };
 
   macro_rules! run_simulation {
@@ -44,6 +45,7 @@ fn main() {
   }
 
   run_simulation!(fcfs);
+  run_simulation!(round_robin);
 
   tui.update();
 
@@ -102,9 +104,11 @@ where S: Scheduler {
 
     if scheduler.has_processes() {
       if clock_tick % SYSTEM_HZ == SYSTEM_HZ - 1 {
-        tui.debug(format!("{:05}: Triggering a scheduling round", clock_tick));
+        let prev_proc_name = scheduler.current_proc().unwrap().name.clone();
         scheduler.schedule();
+        tui.debug(format!("{:05}: Switching context: {} -> {}", clock_tick, prev_proc_name, scheduler.current_proc().unwrap().name));
         tui.debug(format!("{:05}: {} was waiting {} clock ticks", clock_tick, scheduler.current_proc().unwrap().name, scheduler.current_proc().unwrap().waiting_time));
+
         average_waiting_time -= average_waiting_time / num_of_spawned_procs as f64;
         average_waiting_time += scheduler.current_proc().unwrap().waiting_time as f64 / num_of_spawned_procs as f64;
       }
