@@ -33,7 +33,7 @@ fn main() {
     (0..2).map(|_| (0..10).map(|_| 16).collect::<Vec<usize>>()).collect::<Vec<Vec<usize>>>()
   };
 
-  macro_rules! run_simulation {
+  macro_rules! run_simulation_suite {
     ($scheduler:ident) => ({
       let mut average_waiting_time = 0f64;
 
@@ -50,8 +50,8 @@ fn main() {
     })
   }
 
-  run_simulation!(fcfs);
-  run_simulation!(round_robin);
+  run_simulation_suite!(fcfs);
+  run_simulation_suite!(round_robin);
 
   tui.update();
 
