@@ -32,12 +32,18 @@ fn main() {
     (0..32).map(|_| (0..3).map(|_| SYSTEM_HZ).collect::<Vec<usize>>()).collect::<Vec<Vec<usize>>>()
   };
 
-  tui.add_result(format!("Testing the FCFS scheduler"));
-  for (run, scenario) in scenarios.iter().enumerate() {
-    let scheduler = fcfs::new();
-    let avg = run_simulation(&mut tui, scheduler, scenario.clone());
-    tui.add_result(format!("#{:02}: Average waiting time: {:02.2}", run, avg));
+  macro_rules! run_simulation {
+    ($scheduler:ident) => (
+      for (run, scenario) in scenarios.iter().enumerate() {
+        let scheduler = $scheduler::new();
+        let name = scheduler.name().clone();
+        let avg = run_simulation(&mut tui, scheduler, scenario.clone());
+        tui.add_result(format!("{}: #{:02}: Average waiting time: {:02.2}", name, run, avg));
+      }
+    )
   }
+
+  run_simulation!(fcfs);
 
   tui.update();
 
