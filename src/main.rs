@@ -9,7 +9,9 @@
 extern crate rand;
 extern crate cursive;
 
+#[cfg(feature = "go-slow")]
 use std::thread;
+#[cfg(feature = "go-slow")]
 use std::time;
 
 mod process;
@@ -22,7 +24,8 @@ use scheduler::*;
 use tui::*;
 
 /// Length of a single system clock tick (frequency of actual, real time)
-const CLOCK_HZ: u64 = 50;
+#[cfg(feature = "go-slow")]
+const CLOCK_HZ: u64 = 1000;
 /// Switch context every <value> clock ticks
 const SYSTEM_HZ: usize = 8;
 
@@ -76,10 +79,12 @@ where S: Scheduler {
   scheduler.add_process(process_spawner.spawn(process_list.pop().unwrap()));
 
   loop {
-    // update the process view
-    scheduler.list_processes(&mut tui);
-    // update all the views
-    tui.update();
+    if cfg!(feature = "go-slow") || clock_tick % (SYSTEM_HZ * 2) == 0 {
+      // update the process view
+      scheduler.list_processes(&mut tui);
+      // update all the views
+      tui.update();
+    }
 
     if !scheduler.has_processes() {
       // if there's no more processes - end the simulation
@@ -123,6 +128,7 @@ where S: Scheduler {
       scheduler.increase_waiting_times();
     }
 
+    #[cfg(feature = "go-slow")]
     thread::sleep(time::Duration::from_millis(1000 / CLOCK_HZ));
 
     clock_tick += 1;

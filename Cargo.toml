@@ -10,3 +10,4 @@ cursive = { git = "https://github.com/gyscos/Cursive", features = [ "ncurses-bac
 [features]
 default = []
 debug-info = []
+go-slow = ["debug-info"]
