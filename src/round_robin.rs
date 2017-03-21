@@ -14,12 +14,14 @@ use tui::*;
 pub struct RR {
   process_list: Vec<Process>,
   current: Option<usize>,
+  context_switch_num: usize,
 }
 
 pub fn new() -> RR {
   RR {
     process_list: Vec::new(),
     current: None,
+    context_switch_num: 0usize,
   }
 }
 
@@ -47,6 +49,8 @@ impl Scheduler for RR {
       },
       None => self.current = Some(0),
     }
+
+    self.context_switch_num += 1;
   }
 
   fn current_proc(&self) -> Option<&Process> {
@@ -69,6 +73,7 @@ impl Scheduler for RR {
         self.process_list.remove(idx);
         if idx >= self.process_list.len() {
           self.current = Some(0);
+          self.context_switch_num += 1;
         }
       },
       None => (),
@@ -83,6 +88,10 @@ impl Scheduler for RR {
     for process in self.process_list.iter_mut() {
       process.increase_waiting_time();
     }
+  }
+
+  fn context_switch_num(&self) -> usize {
+    self.context_switch_num
   }
 }
 

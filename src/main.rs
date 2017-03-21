@@ -31,6 +31,7 @@ const SYSTEM_HZ: usize = 8;
 
 struct SimulationResult {
   average_waiting_time: f64,
+  context_switch_num: usize,
 }
 
 fn main() {
@@ -39,7 +40,7 @@ fn main() {
   let scenarios = {
     (0..20).map(|_| (0..64).map(|_| {
       let upper_limit = rand::random::<usize>() % (SYSTEM_HZ * 4) + 1;
-      let burst_time = rand::random::<usize>() % upper_limit;
+      let burst_time = rand::random::<usize>() % upper_limit + SYSTEM_HZ;
 
       burst_time + 1 // + 1 so there's no chance of having a process with 0 burst time
     }).collect::<Vec<usize>>()).collect::<Vec<Vec<usize>>>()
@@ -52,18 +53,30 @@ fn main() {
   macro_rules! run_simulation_suite {
     ($scheduler:ident) => ({
       let mut average_waiting_time = 0f64;
+      let mut total_context_switches = 0usize;
+      let mut average_context_switches = 0f64;
 
       for (run, scenario) in scenarios.iter().enumerate() {
         let scheduler = $scheduler::new();
         let result = run_simulation(&mut tui, scheduler, scenario.clone());
         let avg = result.average_waiting_time;
+        let ctx_swtch_num = result.context_switch_num;
+
         tui.add_result(format!("{}: #{:02}: Average waiting time: {:02.2}", stringify!($scheduler), run, avg));
+        tui.add_result(format!("{}: #{:02}: Context switches: {:02}", stringify!($scheduler), run, ctx_swtch_num));
 
         average_waiting_time -= average_waiting_time / (run + 1) as f64;
         average_waiting_time += avg / (run + 1) as f64;
+        total_context_switches += ctx_swtch_num;
+
+        average_context_switches -= average_context_switches / (run + 1) as f64;
+        average_context_switches += ctx_swtch_num as f64 / (run + 1) as f64;
       }
 
-      tui.add_result(format!("{}: Overall average: {:02.2}", stringify!($scheduler), average_waiting_time));
+      tui.add_result(format!("{}: -- Summary:", stringify!($scheduler)));
+      tui.add_result(format!("{}: Average waiting time: {:02.2}", stringify!($scheduler), average_waiting_time));
+      tui.add_result(format!("{}: Total # of context switches: {:02}", stringify!($scheduler), total_context_switches));
+      tui.add_result(format!("{}: Average # of context switches: {:02.2}", stringify!($scheduler), average_context_switches));
     })
   }
 
@@ -77,9 +90,9 @@ fn main() {
 
 fn run_simulation<S>(mut tui: &mut Tui, mut scheduler: S, mut process_list: Vec<usize>) -> SimulationResult
 where S: Scheduler {
-  let mut result = SimulationResult { average_waiting_time: 0f64 };
   let mut clock_tick = 0;
   let mut process_spawner = process::new_spawner();
+  let mut average_waiting_time = 0f64;
   let mut num_of_spawned_procs = 1;
 
   tui.set_header(format!("Using algorithm: {}", scheduler.name()));
@@ -135,8 +148,8 @@ where S: Scheduler {
         tui.debug(format!("{:05}: Switching context: {} -> {}", clock_tick, prev_proc_name, scheduler.current_proc().unwrap().name));
         tui.debug(format!("{:05}: {} was waiting {} clock ticks", clock_tick, scheduler.current_proc().unwrap().name, scheduler.current_proc().unwrap().waiting_time));
 
-        result.average_waiting_time -= result.average_waiting_time / num_of_spawned_procs as f64;
-        result.average_waiting_time += scheduler.current_proc().unwrap().waiting_time as f64 / num_of_spawned_procs as f64;
+        average_waiting_time -= average_waiting_time / num_of_spawned_procs as f64;
+        average_waiting_time += scheduler.current_proc().unwrap().waiting_time as f64 / num_of_spawned_procs as f64;
       }
 
       // increase the waiting time for every process
@@ -149,7 +162,10 @@ where S: Scheduler {
     clock_tick += 1;
   }
 
-  result
+  SimulationResult {
+    average_waiting_time: average_waiting_time,
+    context_switch_num: scheduler.context_switch_num(),
+  }
 }
 
 /*

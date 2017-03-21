@@ -19,6 +19,7 @@ pub trait Scheduler {
   fn kill_current_proc(&mut self);
   fn list_processes(&self, &mut Tui);
   fn increase_waiting_times(&mut self);
+  fn context_switch_num(&self) -> usize;
 }
 
 /*

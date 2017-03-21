@@ -15,11 +15,13 @@ use tui::*;
 #[derive(Debug)]
 pub struct FCFS {
   process_list: VecDeque<Process>,
+  context_switch_num: usize,
 }
 
 pub fn new() -> FCFS {
   FCFS {
     process_list: VecDeque::new(),
+    context_switch_num: 0usize,
   }
 }
 
@@ -49,6 +51,7 @@ impl Scheduler for FCFS {
   }
 
   fn kill_current_proc(&mut self) {
+    self.context_switch_num += 1;
     self.process_list.pop_front();
   }
 
@@ -60,6 +63,10 @@ impl Scheduler for FCFS {
     for process in self.process_list.iter_mut() {
       process.increase_waiting_time();
     }
+  }
+
+  fn context_switch_num(&self) -> usize {
+    self.context_switch_num
   }
 }
 
