@@ -29,6 +29,10 @@ const CLOCK_HZ: u64 = 1000;
 /// Switch context every <value> clock ticks
 const SYSTEM_HZ: usize = 8;
 
+struct SimulationResult {
+  average_waiting_time: f64,
+}
+
 fn main() {
   let mut tui = tui::new();
 
@@ -51,7 +55,8 @@ fn main() {
 
       for (run, scenario) in scenarios.iter().enumerate() {
         let scheduler = $scheduler::new();
-        let avg = run_simulation(&mut tui, scheduler, scenario.clone());
+        let result = run_simulation(&mut tui, scheduler, scenario.clone());
+        let avg = result.average_waiting_time;
         tui.add_result(format!("{}: #{:02}: Average waiting time: {:02.2}", stringify!($scheduler), run, avg));
 
         average_waiting_time -= average_waiting_time / (run + 1) as f64;
@@ -70,11 +75,11 @@ fn main() {
   loop {}
 }
 
-fn run_simulation<S>(mut tui: &mut Tui, mut scheduler: S, mut process_list: Vec<usize>) -> f64
+fn run_simulation<S>(mut tui: &mut Tui, mut scheduler: S, mut process_list: Vec<usize>) -> SimulationResult
 where S: Scheduler {
+  let mut result = SimulationResult { average_waiting_time: 0f64 };
   let mut clock_tick = 0;
   let mut process_spawner = process::new_spawner();
-  let mut average_waiting_time = 0f64;
   let mut num_of_spawned_procs = 1;
 
   tui.set_header(format!("Using algorithm: {}", scheduler.name()));
@@ -130,8 +135,8 @@ where S: Scheduler {
         tui.debug(format!("{:05}: Switching context: {} -> {}", clock_tick, prev_proc_name, scheduler.current_proc().unwrap().name));
         tui.debug(format!("{:05}: {} was waiting {} clock ticks", clock_tick, scheduler.current_proc().unwrap().name, scheduler.current_proc().unwrap().waiting_time));
 
-        average_waiting_time -= average_waiting_time / num_of_spawned_procs as f64;
-        average_waiting_time += scheduler.current_proc().unwrap().waiting_time as f64 / num_of_spawned_procs as f64;
+        result.average_waiting_time -= result.average_waiting_time / num_of_spawned_procs as f64;
+        result.average_waiting_time += scheduler.current_proc().unwrap().waiting_time as f64 / num_of_spawned_procs as f64;
       }
 
       // increase the waiting time for every process
@@ -144,7 +149,7 @@ where S: Scheduler {
     clock_tick += 1;
   }
 
-  average_waiting_time
+  result
 }
 
 /*
