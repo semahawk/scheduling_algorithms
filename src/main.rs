@@ -32,9 +32,9 @@ const CLOCK_HZ: u64 = 1000;
 const SYSTEM_HZ: usize = 8;
 
 /// Spawn this many processes in each scenario
-const SPAWNED_PROCESS_NUM: usize = 64;
+const SPAWNED_PROCESS_NUM: usize = 32;
 /// Number of scenarios
-const SCENARIOS_NUM: usize = 20;
+const SCENARIOS_NUM: usize = 4;
 
 struct SimulationResult {
   average_waiting_time: f64,
@@ -46,7 +46,7 @@ fn main() {
 
   let scenarios = {
     (0..SCENARIOS_NUM).map(|_| (0..SPAWNED_PROCESS_NUM).map(|_| {
-      let upper_limit = rand::random::<usize>() % (SYSTEM_HZ * 4) + 1;
+      let upper_limit = rand::random::<usize>() % (SYSTEM_HZ * 2) + 1;
       let burst_time = rand::random::<usize>() % upper_limit + SYSTEM_HZ;
 
       burst_time + 1 // + 1 so there's no chance of having a process with 0 burst time
@@ -115,7 +115,7 @@ where S: Scheduler {
     // update the process view
     scheduler.list_processes(&mut tui);
 
-    if cfg!(feature = "go-slow") || clock_tick % (SYSTEM_HZ * 2) == 0 {
+    if cfg!(feature = "go-slow") || clock_tick % 2 == 0 {
       // update all the views
       tui.update();
     }
