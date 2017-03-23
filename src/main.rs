@@ -62,13 +62,12 @@ fn main() {
       let mut average_context_switches = 0f64;
 
       for (run, scenario) in scenarios.iter().enumerate() {
+        tui.set_header(format!("Algorithm: {}, run #{}", stringify!($scheduler), run));
+
         let scheduler = $scheduler::new();
         let result = run_simulation(&mut tui, scheduler, scenario.clone());
         let avg = result.average_waiting_time;
         let ctx_swtch_num = result.context_switch_num;
-
-        tui.add_result(format!("{}: #{:02}: Average waiting time: {:02.2}", stringify!($scheduler), run, avg));
-        tui.add_result(format!("{}: #{:02}: Context switches: {:02}", stringify!($scheduler), run, ctx_swtch_num));
 
         average_waiting_time -= average_waiting_time / (run + 1) as f64;
         average_waiting_time += avg / (run + 1) as f64;
@@ -78,7 +77,6 @@ fn main() {
         average_context_switches += ctx_swtch_num as f64 / (run + 1) as f64;
       }
 
-      tui.add_result(format!("{}: -- Summary:", stringify!($scheduler)));
       tui.add_result(format!("{}: Average waiting time: {:02.2}", stringify!($scheduler), average_waiting_time));
       tui.add_result(format!("{}: Total # of context switches: {:02}", stringify!($scheduler), total_context_switches));
       tui.add_result(format!("{}: Average # of context switches: {:02.2}", stringify!($scheduler), average_context_switches));
@@ -100,7 +98,6 @@ where S: Scheduler {
   let mut average_waiting_time = 0f64;
   let mut num_of_spawned_procs = 1;
 
-  tui.set_header(format!("Using algorithm: {}", scheduler.name()));
   tui.debug(format!("{:05}: Starting simulation using {}", clock_tick, scheduler.name()));
 
   // vectors only support the pop (from the back) operation so
