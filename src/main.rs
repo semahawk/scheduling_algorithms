@@ -18,6 +18,7 @@ mod process;
 mod scheduler;
 mod fcfs;
 mod round_robin;
+mod sjf;
 mod tui;
 
 use scheduler::*;
@@ -85,6 +86,7 @@ fn main() {
 
   run_simulation_suite!(fcfs);
   run_simulation_suite!(round_robin);
+  run_simulation_suite!(sjf);
 
   tui.update();
 
