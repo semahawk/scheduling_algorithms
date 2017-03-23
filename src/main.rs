@@ -31,6 +31,8 @@ const SYSTEM_HZ: usize = 8;
 
 /// Spawn this many processes in each scenario
 const SPAWNED_PROCESS_NUM: usize = 64;
+/// Number of scenarios
+const SCENARIOS_NUM: usize = 20;
 
 struct SimulationResult {
   average_waiting_time: f64,
@@ -41,7 +43,7 @@ fn main() {
   let mut tui = tui::new();
 
   let scenarios = {
-    (0..20).map(|_| (0..SPAWNED_PROCESS_NUM).map(|_| {
+    (0..SCENARIOS_NUM).map(|_| (0..SPAWNED_PROCESS_NUM).map(|_| {
       let upper_limit = rand::random::<usize>() % (SYSTEM_HZ * 4) + 1;
       let burst_time = rand::random::<usize>() % upper_limit + SYSTEM_HZ;
 
