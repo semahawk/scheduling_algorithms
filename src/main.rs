@@ -38,6 +38,7 @@ const SCENARIOS_NUM: usize = 4;
 
 struct SimulationResult {
   average_waiting_time: f64,
+  average_turnaround_time: f64,
   context_switch_num: usize,
 }
 
@@ -60,6 +61,7 @@ fn main() {
   macro_rules! run_simulation_suite {
     ($scheduler:ident) => ({
       let mut average_waiting_time = 0f64;
+      let mut average_turnaround_time = 0f64;
       let mut total_context_switches = 0usize;
       let mut average_context_switches = 0f64;
 
@@ -68,18 +70,20 @@ fn main() {
 
         let scheduler = $scheduler::new();
         let result = run_simulation(&mut tui, scheduler, scenario.clone());
-        let avg = result.average_waiting_time;
-        let ctx_swtch_num = result.context_switch_num;
 
         average_waiting_time -= average_waiting_time / (run + 1) as f64;
-        average_waiting_time += avg / (run + 1) as f64;
-        total_context_switches += ctx_swtch_num;
+        average_waiting_time += result.average_waiting_time / (run + 1) as f64;
+        total_context_switches += result.context_switch_num;
+
+        average_turnaround_time -= average_turnaround_time / (run + 1) as f64;
+        average_turnaround_time += result.average_turnaround_time / (run + 1) as f64;
 
         average_context_switches -= average_context_switches / (run + 1) as f64;
-        average_context_switches += ctx_swtch_num as f64 / (run + 1) as f64;
+        average_context_switches += result.context_switch_num as f64 / (run + 1) as f64;
       }
 
       tui.add_result(format!("{}: Average waiting time: {:02.2}", stringify!($scheduler), average_waiting_time));
+      tui.add_result(format!("{}: Average turnaround time: {:02.2}", stringify!($scheduler), average_turnaround_time));
       tui.add_result(format!("{}: Total # of context switches: {:02}", stringify!($scheduler), total_context_switches));
       tui.add_result(format!("{}: Average # of context switches: {:02.2}", stringify!($scheduler), average_context_switches));
     })
@@ -100,6 +104,7 @@ where S: Scheduler {
   let mut clock_tick = 0;
   let mut process_spawner = process::new_spawner();
   let mut average_waiting_time = 0f64;
+  let mut average_turnaround_time = 0f64;
   let mut num_of_spawned_procs = 1;
 
   tui.debug(format!("{:05}: Starting simulation using {}", clock_tick, scheduler.name()));
@@ -156,6 +161,9 @@ where S: Scheduler {
 
         average_waiting_time -= average_waiting_time / num_of_spawned_procs as f64;
         average_waiting_time += scheduler.current_proc().unwrap().waiting_time as f64 / num_of_spawned_procs as f64;
+
+        average_turnaround_time -= average_turnaround_time / num_of_spawned_procs as f64;
+        average_turnaround_time += (clock_tick as f64 - scheduler.current_proc().unwrap().arrival_time as f64) / num_of_spawned_procs as f64;
       }
 
       // increase the waiting time for every process
@@ -170,6 +178,7 @@ where S: Scheduler {
 
   SimulationResult {
     average_waiting_time: average_waiting_time,
+    average_turnaround_time: average_turnaround_time,
     context_switch_num: scheduler.context_switch_num(),
   }
 }
