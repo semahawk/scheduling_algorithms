@@ -25,11 +25,7 @@ impl Process {
   }
 
   pub fn increase_waiting_time(&mut self) {
-    // update waiting time only for processes which
-    // weren't given any CPU time yet
-    if self.execution_time == 0 {
-      self.waiting_time += 1;
-    }
+    self.waiting_time += 1;
   }
 }
 

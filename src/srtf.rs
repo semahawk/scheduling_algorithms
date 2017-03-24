@@ -74,7 +74,7 @@ impl Scheduler for SRTF {
   }
 
   fn increase_waiting_times(&mut self) {
-    for process in self.process_list.iter_mut() {
+    for process in self.process_list.iter_mut().skip(1) {
       process.increase_waiting_time();
     }
   }

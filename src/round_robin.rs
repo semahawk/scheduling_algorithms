@@ -85,7 +85,12 @@ impl Scheduler for RR {
   }
 
   fn increase_waiting_times(&mut self) {
-    for process in self.process_list.iter_mut() {
+    for (idx, process) in self.process_list.iter_mut().enumerate() {
+      if let Some(current) = self.current {
+        // skip the currently-being executed process
+        if idx == current { continue; }
+      }
+
       process.increase_waiting_time();
     }
   }
