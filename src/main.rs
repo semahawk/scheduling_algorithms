@@ -45,6 +45,11 @@ struct SimulationResult {
 fn main() {
   let mut tui = tui::new();
 
+  let mut shortest_average_waiting_time = (String::new(), std::f64::MAX);
+  let mut shortest_average_turnaround_time = (String::new(), std::f64::MAX);
+  let mut lowest_context_switch_num = (String::new(), std::usize::MAX);
+  let mut lowest_average_context_switch_num = (String::new(), std::f64::MAX);
+
   let scenarios = {
     (0..SCENARIOS_NUM).map(|_| (0..SPAWNED_PROCESS_NUM).map(|_| {
       let upper_limit = rand::random::<usize>() % (SYSTEM_HZ * 2) + 1;
@@ -86,6 +91,22 @@ fn main() {
       tui.add_result(format!("{}: Average turnaround time: {:02.2}", stringify!($scheduler), average_turnaround_time));
       tui.add_result(format!("{}: Total # of context switches: {:02}", stringify!($scheduler), total_context_switches));
       tui.add_result(format!("{}: Average # of context switches: {:02.2}", stringify!($scheduler), average_context_switches));
+
+      if average_waiting_time < shortest_average_waiting_time.1 {
+        shortest_average_waiting_time = (String::from(stringify!($scheduler)), average_waiting_time);
+      }
+
+      if average_turnaround_time < shortest_average_turnaround_time.1 {
+        shortest_average_turnaround_time = (String::from(stringify!($scheduler)), average_turnaround_time);
+      }
+
+      if total_context_switches < lowest_context_switch_num.1 {
+        lowest_context_switch_num = (String::from(stringify!($scheduler)), total_context_switches);
+      }
+
+      if average_context_switches < lowest_average_context_switch_num.1 {
+        lowest_average_context_switch_num = (String::from(stringify!($scheduler)), average_context_switches);
+      }
     })
   }
 
@@ -93,6 +114,13 @@ fn main() {
   run_simulation_suite!(round_robin);
   run_simulation_suite!(sjf);
   run_simulation_suite!(srtf);
+
+  tui.add_result(format!(""));
+  tui.add_result(format!("-- Summary --"));
+  tui.add_result(format!("Shortest average waiting time: {}", shortest_average_waiting_time.0));
+  tui.add_result(format!("Shortest average turnaround time: {}", shortest_average_turnaround_time.0));
+  tui.add_result(format!("Lowest context switch #: {}", lowest_context_switch_num.0));
+  tui.add_result(format!("Lowest average context switch #: {}", lowest_average_context_switch_num.0));
 
   tui.update();
 
