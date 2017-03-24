@@ -13,6 +13,7 @@ pub struct Process {
   pub waiting_time: usize,
   pub burst_time: usize,
   pub execution_time: usize,
+  pub arrival_time: usize,
 }
 
 impl Process {
@@ -40,7 +41,7 @@ pub fn new_spawner() -> ProcessSpawner {
 }
 
 impl ProcessSpawner {
-  pub fn spawn(&mut self, burst_time: usize) -> Process {
+  pub fn spawn(&mut self, burst_time: usize, arrival_time: usize) -> Process {
     self.current_id += 1;
 
     Process {
@@ -49,6 +50,7 @@ impl ProcessSpawner {
       waiting_time: 0,
       execution_time: 0,
       burst_time: burst_time,
+      arrival_time: arrival_time,
     }
   }
 }

@@ -109,7 +109,7 @@ where S: Scheduler {
   process_list.reverse();
 
   // Add the equivalent of the 'init' process
-  scheduler.add_process(process_spawner.spawn(process_list.pop().unwrap()));
+  scheduler.add_process(process_spawner.spawn(process_list.pop().unwrap(), clock_tick));
 
   loop {
     // update the process view
@@ -135,7 +135,7 @@ where S: Scheduler {
     // Assume that you can't create new processes, if there's none already
     if clock_tick % SYSTEM_HZ == 0 {
       if let Some(burst_time) = process_list.pop() {
-        let new_proc = process_spawner.spawn(burst_time);
+        let new_proc = process_spawner.spawn(burst_time, clock_tick);
         tui.debug(format!("{:05}: Spawning {}", clock_tick, new_proc.name));
         scheduler.add_process(new_proc);
         num_of_spawned_procs += 1;
